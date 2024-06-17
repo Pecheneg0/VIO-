@@ -1,0 +1,56 @@
+<launch>
+  <!-- ========== АРГУМЕНТЫ (координаты старта) ========== -->
+  <arg name="start_lat" default="55.691288" doc="Широта точки старта (WGS84)"/>
+  <arg name="start_lon" default="37.516272" doc="Долгота точки старта (WGS84)"/>
+  <arg name="start_alt" default="150.0"  doc="Высота над уровнем моря (м)"/>
+
+  <!-- ========== 1. СЕНСОРЫ ========== -->
+  <include file="$(find rpi_v4l2_camera)/launch/camera2.launch" />
+  <include file="$(find bmi088_i2c)/launch/bmi088_i2c.launch" />
+  <include file="$(find tfmini_ros)/launch/tfmini3.launch" /> 
+
+  <!-- ========== 2. ТРАНСФОРМАЦИИ ========== -->
+  <node pkg="tf" type="static_transform_publisher" 
+        name="tf_base_to_lidar" 
+        args="0 0 -0.03 0 0 0 base_link lidar_link 100" />
+
+  <!-- ========== 3. ГИБРИДНАЯ ОДОМЕТРИЯ ========== -->
+  <node pkg="visual_gyro_estimator" 
+        type="visual_gyro_node9.py" 
+        name="visual_gyro_node" 
+        output="screen"
+        respawn="true"
+        respawn_delay="2.0">
+<!--    <rosparam command="load" file="$(find visual_gyro_estimator)/config/visual_gyro_params2.yaml"/> -->
+    <param name="min_features" value="4"/>
+    <param name="quality_level" value="0.06"/>
+    <param name="max_flow_error" value="35.0"/>
+    <param name="coast_damping" value="0.55"/>
+    <param name="vel_deadband" value="0.018"/> 
+    <param name="kf_Q" value="0.15"/>
+    <param name="kf_R" value="0.7"/>
+    <param name="scale_factor" value="1"/>
+    <param name="cov_growth_rate" value="0.015"/>
+    <param name="initial_heading_deg" value="0.0"/> <!-- 0=North, 90=East, 180=South, 270=West -->
+    <param name="lift_height" value="0.20"/>        <!-- Высота триггера взлёта -->
+    <param name="lift_delay" value="3.0"/>         <!-- Задержка стабилизации (сек) -->
+    <param name="max_coast_frames" value="45"/>
+  </node>
+
+  <!-- ========== 4. ПРЕОБРАЗОВАНИЕ В WGS84 ========== -->
+  <node pkg="visual_gyro_estimator" 
+        type="local_to_wgs84.py" 
+        name="coord_transform" 
+        output="screen"
+        respawn="true"
+        respawn_delay="2.0">
+    <param name="start_lat" value="$(arg start_lat)"/>
+    <param name="start_lon" value="$(arg start_lon)"/>
+    <param name="start_alt" value="$(arg start_alt)"/>
+    <param name="geoid_height" value="14.5"/>
+    <param name="odom_topic" value="/drone/odom"/>
+    <param name="pub_topic" value="/vio/global_position"/>
+  </node>
+
+
+</launch>

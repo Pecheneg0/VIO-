@@ -43,12 +43,12 @@ class HybridFlowNode:
         rospy.loginfo(" Global Flow Node initializing...")
 
         # === 1. КАЛИБРОВКА ===
-        self.fx = rospy.get_param('~fx', 560.7238)
-        self.fy = rospy.get_param('~fy', 554.3852)
+        self.fx = rospy.get_param('~fx', 922.531465)
+        self.fy = rospy.get_param('~fy', 925.020034)
         R_list = rospy.get_param('~R_cam_imu', [
-            -0.02674005, -0.99928846, -0.02659981,
-            -0.98749351,  0.03054164, -0.15467312,
-             0.15537547,  0.02213117, -0.98760755
+            0.024071420357756907, -0.9994387711955938, -0.023296123132475963,
+            -0.9997047740849597, -0.023987684351386294, -0.0038672562883473715,
+            0.0033062658244114654, 0.02338233586495525, -0.9997211286032712,
         ])
         self.R_cam_imu = np.array(R_list).reshape(3, 3)
 
@@ -65,7 +65,6 @@ class HybridFlowNode:
         
         raw_db = rospy.get_param('~vel_deadband', 0.015)
         self.vel_deadband = max(0.001, min(float(raw_db), 0.030))
-        #rospy.loginfo(f"️ vel_deadband clamped: {raw_db} → {self.vel_deadband:.3f} m/s")
         self.kf_R = rospy.get_param('~kf_R', 0.7)
         self.kf_Q = rospy.get_param('~kf_Q', 0.12)
         self.coast_damping = rospy.get_param('~coast_damping', 0.5)
