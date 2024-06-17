@@ -1,0 +1,48 @@
+<launch>
+  <!-- ========== АРГУМЕНТЫ (координаты старта) ========== -->
+  <arg name="start_lat" default="55.691976" doc="Широта точки старта (WGS84)"/>
+  <arg name="start_lon" default="37.516473" doc="Долгота точки старта (WGS84)"/>
+  <arg name="start_alt" default="150.0"  doc="Высота над уровнем моря (м)"/>
+
+  <!-- ========== 2. ТРАНСФОРМАЦИИ ========== -->
+  <node pkg="tf" type="static_transform_publisher" 
+        name="tf_base_to_lidar" 
+        args="0 0 -0.03 0 0 0 base_link lidar_link 100" />
+
+  <!-- ========== 3. ГИБРИДНАЯ ОДОМЕТРИЯ ========== -->
+  <node pkg="visual_gyro_estimator" 
+        type="visual_gyro_node8.py" 
+        name="visual_gyro_node" 
+        output="screen"
+        respawn="true"
+        respawn_delay="2.0">
+    <rosparam command="load" file="$(find visual_gyro_estimator)/config/visual_gyro_params.yaml"/>
+    <param name="min_features" value="6"/>
+    <param name="quality_level" value="0.06"/>
+    <param name="max_flow_error" value="35.0"/>
+    <param name="coast_damping" value="0.55"/>
+    <param name="vel_deadband" value="0.015"/> 
+    <param name="kf_Q" value="0.15"/>
+    <param name="kf_R" value="0.7"/>
+    <param name="scale_factor" value="1"/>
+    <param name="cov_growth_rate" value="0.015"/>
+    <param name="max_coast_frames" value="60"/>
+  </node>
+
+  <!-- ========== 4. ПРЕОБРАЗОВАНИЕ В WGS84 ========== -->
+  <node pkg="visual_gyro_estimator" 
+        type="local_to_wgs84.py" 
+        name="coord_transform" 
+        output="screen"
+        respawn="true"
+        respawn_delay="2.0">
+    <param name="start_lat" value="$(arg start_lat)"/>
+    <param name="start_lon" value="$(arg start_lon)"/>
+    <param name="start_alt" value="$(arg start_alt)"/>
+    <param name="geoid_height" value="14.5"/>
+    <param name="odom_topic" value="/drone/odom"/>
+    <param name="pub_topic" value="/vio/global_position"/>
+  </node>
+
+
+</launch>

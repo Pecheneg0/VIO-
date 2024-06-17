@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="camera_driver" type="camera_pub.py" name="camera_publisher" output="screen">
+    <param name="frame_id" value="camera_link" />
+    <param name="camera_info_url" value="file://$(find camera_driver)/config/camera_info.yaml" />
+  </node>
+</launch>

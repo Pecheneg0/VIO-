@@ -1,0 +1,11 @@
+<launch>
+    <!-- Аргумент для имени системы координат IMU датчика -->
+    <arg name="imu_frame" default="imu_link" />
+
+    <!-- Запуск ноды драйвера BMI088 -->
+    <node pkg="bmi088_i2c" type="bmi088_node.py" name="bmi088_i2c_node" output="screen" respawn="true">
+        <!-- Передача параметров внутрь ноды -->
+        <param name="frame_id" type="string" value="$(arg imu_frame)" />
+    </node>
+</launch>
+

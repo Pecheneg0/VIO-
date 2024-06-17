@@ -1,0 +1,29 @@
+# Камерные параметры (из вашей kalibr калибровки)
+fx: 560.7238
+fy: 554.3852
+
+# Матрица поворота R_cam_imu (верхние 3x3 из T_cam_imu)
+# Формат: row-major [r11, r12, r13, r21, r22, r23, r31, r32, r33]
+R_cam_imu: [
+  -0.02674005, -0.99928846, -0.02659981,
+  -0.98749351,  0.03054164, -0.15467312,
+   0.15537547,  0.02213117, -0.98760755
+]
+
+# Параметры трекинга (оптимизировано под 640x480 @ 20Hz)
+max_features: 120
+min_features: 25
+flow_window_size: 21
+max_flow_error: 20.0
+quality_level: 0.15
+min_distance: 12
+block_size: 9
+
+# Синхронизация
+imu_buffer_length: 60
+max_sync_offset_sec: 0.03
+
+# Топики
+image_topic: "/data"
+imu_topic: "/imu/data_raw"
+output_topic: "/drone/clean_flow_vel"

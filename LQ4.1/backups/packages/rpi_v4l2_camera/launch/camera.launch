@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Узел камеры с параметрами -->
+    <node name="camera_node" pkg="rpi_v4l2_camera" type="camera_node" output="screen">
+        <!-- Устройство камеры (обычно /dev/video0) -->
+        <param name="camera_device" value="/dev/video0"/>
+        
+        <!-- Разрешение и частота кадров -->
+        <param name="image_width" value="640"/>
+        <param name="image_height" value="480"/>
+        <param name="fps" value="20"/>
+        
+        <!-- Frame ID для сообщений -->
+        <param name="frame_id" value="camera_frame"/>
+    </node>
+</launch>

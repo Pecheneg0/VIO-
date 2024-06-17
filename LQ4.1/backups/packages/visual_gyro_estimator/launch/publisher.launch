@@ -1,0 +1,18 @@
+<launch>
+  <!-- ========== АРГУМЕНТЫ (координаты старта) ========== -->
+  <arg name="start_lat" default="55.691976" doc="Широта точки старта (WGS84)"/>
+  <arg name="start_lon" default="37.516473" doc="Долгота точки старта (WGS84)"/>
+  <arg name="start_alt" default="150.0"  doc="Высота над уровнем моря (м)"/>
+
+  <!-- ========== 1. СЕНСОРЫ ========== -->
+  <include file="$(find camera_driver)/launch/ov9782_usb.launch" />
+  <include file="$(find bmi088_i2c)/launch/bmi088_i2c.launch" />
+  <include file="$(find tfmini_ros)/launch/tfmini3.launch" />
+
+  <!-- ========== 2. ТРАНСФОРМАЦИИ ========== -->
+  <node pkg="tf" type="static_transform_publisher" 
+        name="tf_base_to_lidar" 
+        args="0 0 -0.03 0 0 0 base_link lidar_link 100" />
+
+
+</launch>
