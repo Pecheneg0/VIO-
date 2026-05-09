@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- ========== ЗАПУСК ИСТОЧНИКОВ ДАННЫХ ========== -->
+  <arg name="start_lat" default="55.7558" doc="Широта точки старта (WGS84)"/>
+  <arg name="start_lon" default="37.6173" doc="Долгота точки старта (WGS84)"/>
+  <arg name="start_alt" default="150.0"  doc="Высота над уровнем моря (м)"/>
+
+  <!-- Запуск камеры (публикует в /data) -->
+  <include file="$(find rpi_v4l2_camera)/launch/camera.launch" />
+
+	  <!-- Запуск IMU (публикует в /imu/data_raw) -->
+  <include file="$(find matek_imu)/launch/matekimu0.1.launch" />
+	  
+	  <!-- ========== НОДА ПРЕОБРАЗОВАНИЯ КООРДИНАТ ========== -->
+  <node pkg="matek_imu" 
+        type="preobr0.4.py" 
+        name="coord_transform" 
+        output="screen"
+        respawn="true"
+        respawn_delay="2.0">
+    
+    <!-- Передаём аргументы launch в параметры ноды -->
+    <param name="start_lat" value="$(arg start_lat)"/>
+    <param name="start_lon" value="$(arg start_lon)"/>
+    <param name="start_alt" value="$(arg start_alt)"/>
+  </node>
+
+  <!-- Запуск ov_plane (читает /cam0/image_raw и /imu0) -->
+  <arg name="config_path" default="$(find ov_plane)/config/config5/estimator_config_mode6.yaml" />
+  <arg name="verbosity"   default="INFO" /> 
+
+  <!-- MASTER NODE! -->
+  <node name="run_subscribe_msckf" pkg="ov_msckf" type="run_subscribe_msckf" output="screen">
+      <param name="verbosity"    type="string" value="$(arg verbosity)" />
+      <param name="config_path"  type="string" value="$(arg config_path)" />
+      <param name="use_stereo"   type="bool"   value="false" />
+      <param name="max_cameras"  type="int"    value="1" />
+
+      <!-- РЕМАПЫ, ЧТОБЫ НОДА ВИДЕЛА ДАННЫЕ -->
+      <remap from="/cam0/image_raw" to="/data" /> 
+      <remap from="/imu0" to="/imu" /> 
+  </node>
+
+  <!-- Настройка параметров -->
+  <param name="vio/quality_threshold" value="0.7"/>
+  <param name="vio/min_feature_count" value="100"/>
+  <param name="vio/frame_rate" value="30"/>
+</launch>
+
