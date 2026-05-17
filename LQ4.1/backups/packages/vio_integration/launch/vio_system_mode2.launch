@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- ========== ЗАПУСК ИСТОЧНИКОВ ДАННЫХ ========== -->
+
+  <!-- Запуск камеры (публикует в /data) -->
+  <include file="$(find camera_driver)/launch/camera.launch" />
+
+  <!-- Запуск IMU (публикует в /imu/data_raw) -->
+  <include file="$(find mpu6050_driver)/launch/mpu6050.launch" >
+    <arg name="frame_id" value="imu_link"/>
+  </include>
+  <!-- ========== ЗАПУСК ОБРАБОТКИ ДАННЫХ ========== -->
+
+  <!-- Запуск фильтра IMU (читает /imu/data_raw, публикует в /imu/data) -->
+  <!-- Этот фильтр улучшает данные IMU перед подачей в VIO -->
+  <!-- Запуск калибровки IMU при старте -->
+    
+  <node pkg="mpu6050_driver" type="imu_calibration.py" name="imu_calibration" output="screen">
+    <param name="calibration_time" value="5.0"/>
+  </node>  
+
+  <node pkg="imu_filter_madgwick" type="imu_filter_node" name="imu_filter" output="screen" launch-prefix="bash -c 'sleep 6; $0 $@'">
+    <!-- Путь к конфигурации фильтра (если есть) -->
+    <rosparam command="load" file="$(find mpu6050_driver)/config/imu_filter_params.yaml" /> 
+    <!-- Перенаправление топиков -->
+	    <!-- <remap from="imu/data_raw" to="/imu/data_raw" /> -->
+    <remap from="imu/data" to="/imu/data_filtered" />
+  </node>
+
+  <!-- ========== ЗАПУСК VIO АЛГОРИТМА ========== -->
+
+  <!-- Запуск ov_plane (читает /cam0/image_raw и /imu0) -->
+  <node pkg="ov_plane" type="ros1_serial_msckf" name="ov_plane" output="screen" launch-prefix="bash -c 'sleep 6; $0 $@'">
+    <!-- Путь к конфигурационному файлу ov_plane -->
+    <param name="config_path" value="$(find ov_plane)/config/config1/estimator_config_mode6.yaml"/>
+	    
+    <param name="path_bag" value="/home/ubuntu/test/bagfile/my_vio_data1.bag"/>
+    <!-- Перенаправление топиков для ov_plane -->
+    <remap from="/cam0/image_raw" to="/data" /> <!-- ov_plane читает изображения из /data -->
+    <remap from="/imu0" to="/imu/data_filtered" />       <!-- ov_plane читает отфильтрованные IMU данные из /imu/data -->
+  </node>
+
+  <!-- Настройка параметров калибровки и оптимизации -->
+  <param name="vio/quality_threshold" value="0.7"/>
+  <param name="vio/min_feature_count" value="100"/>
+  <param name="vio/frame_rate" value="15"/>
+  <param name="imu/update_rate" value="200"/>
+  <!-- (Опционально) Запуск RViz для визуализации (требует отдельного компьютера с GUI) -->
+  <!--
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ov_plane)/rviz/ov_plane.rviz" />
+  -->
+
+</launch>

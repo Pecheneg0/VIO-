@@ -1,0 +1,54 @@
+<launch>
+  <!-- Серийный номер вашей камеры -->
+  <arg name="serial_no"           default="333422304157"/>
+  <arg name="camera"              default="d455"/>
+
+  <!-- МИНИМАЛЬНОЕ РАЗРЕШЕНИЕ: 640x480 — стандарт для VIO -->
+  <arg name="infra_width"         default="640"/>
+  <arg name="infra_height"        default="480"/>
+  
+  <!-- МИНИМАЛЬНЫЙ FPS: 15 кадров достаточно для VIO при невысоких скоростях -->
+  <arg name="infra_fps"           default="15"/>
+
+  <!-- ВКЛЮЧАЕМ ТОЛЬКО ТО, ЧТО НУЖНО -->
+  <arg name="enable_infra1"       default="true"/>
+  <arg name="enable_infra2"       default="true"/>
+  <arg name="enable_color"        default="false"/>
+  <arg name="enable_depth"        default="false"/>
+
+  <!-- IMU: Снижаем частоту гироскопа до 200Гц (стабильнее для USB) -->
+  <arg name="gyro_fps"            default="200"/>
+  <arg name="accel_fps"           default="100"/>
+  <arg name="enable_gyro"         default="true"/>
+  <arg name="enable_accel"        default="true"/>
+
+  <!-- СИНХРОНИЗАЦИЯ И ОБЪЕДИНЕНИЕ IMU -->
+  <arg name="enable_sync"           default="true"/>
+  <arg name="unite_imu_method"      default="linear_interpolation"/>
+
+  <!-- СБРОС И ТАЙМАУТЫ -->
+  <arg name="initial_reset"         default="false"/>
+  <arg name="reconnect_timeout"     default="6.0"/>
+
+  <group ns="$(arg camera)">
+    <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
+      <arg name="serial_no"                value="$(arg serial_no)"/>
+      <arg name="infra_width"              value="$(arg infra_width)"/>
+      <arg name="infra_height"             value="$(arg infra_height)"/>
+      <arg name="infra_fps"                value="$(arg infra_fps)"/>
+      <arg name="enable_infra1"            value="$(arg enable_infra1)"/>
+      <arg name="enable_infra2"            value="$(arg enable_infra2)"/>
+      <arg name="enable_color"             value="$(arg enable_color)"/>
+      <arg name="enable_depth"             value="$(arg enable_depth)"/>
+      <arg name="gyro_fps"                 value="$(arg gyro_fps)"/>
+      <arg name="accel_fps"                value="$(arg accel_fps)"/>
+      <arg name="enable_gyro"              value="$(arg enable_gyro)"/>
+      <arg name="enable_accel"             value="$(arg enable_accel)"/>
+      <arg name="enable_sync"              value="$(arg enable_sync)"/>
+      <arg name="unite_imu_method"         value="$(arg unite_imu_method)"/>
+      <arg name="initial_reset"            value="$(arg initial_reset)"/>
+      <arg name="reconnect_timeout"        value="$(arg reconnect_timeout)"/>
+    </include>
+  </group>
+</launch>
+

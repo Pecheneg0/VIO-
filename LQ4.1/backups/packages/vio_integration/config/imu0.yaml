@@ -1,0 +1,25 @@
+%YAML:1.0
+
+# imu0.yaml - калибровка IMU для ov_plane
+# Помещён в ~/catkin_ws_ov_plane/src/vio_integration/config/real_world/imu0.yaml
+
+imu0:
+  # Внешние параметры (от IMU к телу дрона, обычно единичная матрица для IMU на плате)
+  T_i_b: # Transform from IMU frame (i) to Body frame (b)
+    - [1.0, 0.0, 0.0, 0.0] # R_ItoB
+    - [0.0, 1.0, 0.0, 0.0]
+    - [0.0, 0.0, 1.0, 0.0]
+    - [0.0, 0.0, 0.0, 1.0]
+  # p_BinI: [0.0, 0.0, 0.0] # Position of body origin in IMU frame (if needed)
+
+  # Параметры шума (замените на ВАШИ!)
+  acc_noise_density: 0.004 # (м/с^2)/sqrt(Hz) - из datasheet MPU6050
+  gyro_noise_density: 0.0004 # (рад/с)/sqrt(Hz) - из datasheet MPU6050
+  acc_random_walk: 0.001 # (м/с^3)/sqrt(Hz) - из datasheet MPU6050
+  gyro_random_walk: 0.00001 # (рад/с^2)/sqrt(Hz) - из datasheet MPU6050
+
+  # Частота обновления IMU
+  update_rate: 200.0 # Частота, с которой публикует IMU (до фильтрации)
+
+  # Топик ROS (не используется в этом файле, но может быть указан для ясности)
+  # rostopic: "/imu/data"

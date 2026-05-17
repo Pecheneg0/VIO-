@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- ========== ЗАПУСК ИСТОЧНИКОВ ДАННЫХ ========== -->
+
+  <!-- Запуск камеры (публикует в /data) -->
+  <include file="$(find rpi_v4l2_camera)/launch/camera.launch" />
+
+  <!-- Запуск IMU (публикует в /imu/data_raw) -->
+  <include file="$(find mpu6050_driver)/launch/mpu6050_driver.launch" />
+
+  <!-- Запуск ov_plane (читает /cam0/image_raw и /imu0) -->
+  <arg name="config_path" default="$(find ov_plane)/config/config3/estimator_config_mode6.yaml" />
+  <arg name="verbosity"   default="INFO" /> 
+
+  <!-- MASTER NODE! -->
+  <node name="run_subscribe_msckf" pkg="ov_msckf" type="run_subscribe_msckf" output="screen">
+      <param name="verbosity"    type="string" value="$(arg verbosity)" />
+      <param name="config_path"  type="string" value="$(arg config_path)" />
+      <param name="use_stereo"   type="bool"   value="false" />
+      <param name="max_cameras"  type="int"    value="1" />
+
+  </node>
+
+  <!-- Настройка параметров -->
+  <param name="vio/quality_threshold" value="0.7"/>
+  <param name="vio/min_feature_count" value="100"/>
+  <param name="vio/frame_rate" value="30"/>
+</launch>
+

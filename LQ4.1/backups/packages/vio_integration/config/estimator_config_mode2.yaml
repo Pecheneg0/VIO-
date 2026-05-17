@@ -1,0 +1,31 @@
+%YAML:1.0
+# estimator_config.yaml
+# Помещён в ~/catkin_ws_ov_plane/src/vio_integration/config/estimator_config.yaml
+# Используется ov_plane через vio_system.launch
+verbosity: "INFO"
+
+cam0:
+  camera_model: "pinhole"
+  intrinsics: [5283.795, 5232.571, 193.803, 142.364] #fu, fv, cu, cv
+  distortion_model: "radtan"
+  distortion_coeffs: [8.1, 0.3, 0.086, 0.086] # 
+  shutter_type: "rolling" # КРИТИЧНО для VIO
+  fps: 15.0 # Частота вашей камеры
+imu0:
+  # ВАЖНО: Замените на шумы из datasheet или калибровки вашего IMU!
+  acc_noise_density: 0.004
+  gyro_noise_density: 0.0004
+  acc_random_walk: 0.001
+  gyro_random_walk: 0.00001
+  update_rate: 200.0 # Частота вашего IMU
+
+max_clone_size: 11
+max_cameras : 1
+feat_rep_msckf: "GLOBAL_3D"
+feat_rep_slam: "GLOBAL_3D"
+
+use_plane_constraint: true
+use_plane_constraint_msckf: true
+use_plane_constraint_slamu: true
+use_plane_constraint_slamd: true
+

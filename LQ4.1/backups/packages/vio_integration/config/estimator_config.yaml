@@ -1,0 +1,43 @@
+# estimator_config.yaml
+# Помещён в ~/catkin_ws_ov_plane/src/vio_integration/config/estimator_config.yaml
+# Используется ov_plane через vio_system.launch
+
+verbosity: "INFO"
+
+cam0:
+  camera_model: "pinhole"
+  # ВАЖНО: Замените на ВАШИ калибровочные параметры!
+  intrinsics: [320.0, 320.0, 160.0, 120.0] # Пример для 320x240
+  distortion_model: "radtan"
+  # ВАЖНО: Замените на ВАШИ коэффициенты дисторсии!
+  distortion_coeffs: [0.1, -0.2, 0.001, 0.001] # Пример
+  num_features: 150 # Уменьшено для Raspberry Pi
+  shutter_type: "rolling" # КРИТИЧНО для VIO
+  fps: 15.0 # Частота вашей камеры
+
+imu0:
+  # ВАЖНО: Замените на шумы из datasheet или калибровки вашего IMU!
+  acc_noise_density: 0.004
+  gyro_noise_density: 0.0004
+  acc_random_walk: 0.001
+  gyro_random_walk: 0.00001
+  update_rate: 200.0 # Частота вашего IMU
+
+max_clone_size: 11
+max_slam_features: 15
+max_cameras: 1
+feat_rep_msckf: "GLOBAL_3D"
+feat_rep_slam: "GLOBAL_3D"
+
+use_plane_constraint: true
+use_plane_constraint_msckf: true
+use_plane_constraint_slamu: true
+use_plane_constraint_slamd: true
+use_plane_slam_feats: true
+use_refine_plane_feat: true
+max_msckf_plane: 20
+sigma_constraint: 0.010
+const_init_multi: 1.0
+const_init_chi2: 1.0
+
+# Другие параметры по необходимости...

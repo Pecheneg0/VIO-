@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- ========== ЗАПУСК ИСТОЧНИКОВ ДАННЫХ ========== -->
+
+  <!-- Запуск камеры (публикует в /data) -->
+  <include file="$(find camera_driver)/launch/camera.launch" />
+
+  <!-- Запуск IMU (публикует в /imu/data_raw) -->
+  <include file="$(find mpu6050_driver)/launch/mpu6050.launch" />
+
+  <!-- Запуск фильтра IMU (читает /imu/data_raw, публикует в /imu/data_filtered) -->
+  <node pkg="imu_filter_madgwick" type="imu_filter_node" name="imu_filter" output="screen" launch-prefix="bash -c 'sleep 3; $0 $@'">
+    <param name="use_mag" value="false" />
+    <param name="publish_tf" value="false" />
+    <param name="world_frame" value="enu" />
+    <param name="gain" value="0.01" />
+    <param name="zeta" value="0.00001" />
+    <remap from="imu/data_raw" to="/imu/data_raw" />
+    <remap from="imu/data" to="/imu/data_filtered" />
+  </node>
+
+  <!-- ========== ЗАПУСК VIO АЛГОРИТМА ========== -->
+
+  <!-- Запуск ov_plane (читает /cam0/image_raw и /imu0) -->
+  <node pkg="ov_plane" type="ros1_serial_msckf" name="ov_plane" output="screen" launch-prefix="bash -c 'sleep 6; $0 $@'">
+    <!-- Путь к основному конфигурационному файлу ov_plane -->
+    <param name="config_path" value="$(find ov_plane)/config/config1/estimator_config_mode6.yaml" />
+    <!-- Пустой путь к rosbag -->
+    <param name="path_bag" value="/home/ubuntu/test/bagfile/my_vio_data1.bag" />
+
+    <param name="relative_config_imu" value="$(find ov_plane)/config/config1/imu0.yaml" />
+    <param name="relative_config_imucam" value="$(find ov_plane)/config/config1/cam0.yaml" />
+
+    <!-- Перенаправление топиков для ov_plane -->
+    <!--<remap from="/cam0/image_raw" to="/data" /> -->
+    <!--<remap from="/imu0" to="/imu/data_filtered" /> -->
+
+    <!-- Остальные параметры передаются через estimator_config.yaml -->
+  </node>
+
+</launch>
