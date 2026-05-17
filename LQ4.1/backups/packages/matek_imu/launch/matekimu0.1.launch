@@ -1,0 +1,19 @@
+<launch>
+  <node 
+    pkg="matek_imu" 
+    type="matekimu_nodev4.py" 
+    name="matekimu" 
+    output="screen"
+    respawn="true"
+    respawn_delay="2.0">
+    
+    <!-- Параметры порта -->
+    <param name="port" value="/dev/ttyAMA0"/>
+    <param name="baud" value="921600"/>
+    <param name="frame_id" value="imu_link"/>
+    
+    <!-- Remap при необходимости -->
+    <!-- <remap from="gps/fix" to="/mavros/gps/fix"/> -->
+    
+  </node>
+</launch>
